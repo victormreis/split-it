@@ -2,9 +2,7 @@
 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Testing\Fluent\Concerns\Has;
 use function Pest\Laravel\assertDatabaseHas;
-use function PHPUnit\Framework\assertNotContains;
 use function PHPUnit\Framework\assertTrue;
 
 test('Should register an user', function () {
@@ -24,8 +22,13 @@ test('Should register an user', function () {
     ]);
 });
 test('Should reject invalid request input', function () {
+    $input = [
+        'name' => '',
+        'email' => 'j.doetest.com',
+        'password' => '@password1234567'
+    ];
 
-    $response = $this->postJson(route('api.register')) ;
+    $response = $this->postJson(route('api.register'), $input); ;
     $response->assertStatus(422);
 
 });
@@ -51,11 +54,9 @@ test('Password shoul not be returnd when creating a user', function () {
         'password' => '@password1234567'
     ];
 
-    $this->postJson(route('api.register'), $input);
+    $response = $this->postJson(route('api.register'), $input);
 
-    $user = User::query()->where('email', $input["email"])->first();
 
-    expect($user)->not()->toHaveKey('password');
-
+    expect($response->json())->not()->toHaveKey('password');
 
 });
